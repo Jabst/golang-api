@@ -38,27 +38,35 @@ func (s UserStore) Get(ctx context.Context, id int) (models.User, error) {
 	return s.scan(row)
 }
 
-func queryComposer(terms map[string]string) string {
+func queryComposer(terms map[string]string) (string, []interface{}) {
 	if len(terms) == 0 {
-		return ""
-	}
-	var expressions []string = make([]string, 0)
-	for key, value := range terms {
-		expressions = append(expressions, fmt.Sprintf(" %s = '%s' ", key, value))
+		return "", nil
 	}
 
-	return strings.Join(expressions, "AND") + " AND"
+	var expressions []string = make([]string, 0)
+	var index int = 1
+	filterParams := make([]interface{}, 0)
+
+	for key, value := range terms {
+		expressions = append(expressions, fmt.Sprintf(" %s = $%d ", key, index))
+		filterParams = append(filterParams, value)
+		index++
+	}
+
+	return strings.Join(expressions, "AND") + " AND", filterParams
 }
 
 func (s UserStore) List(ctx context.Context, queryTerm map[string]string) ([]models.User, error) {
 
 	var users []models.User = make([]models.User, 0)
 
+	filterArguments, filterParams := queryComposer(queryTerm)
+
 	rows, err := s.pool.QueryContext(ctx, fmt.Sprintf(`
 		SELECT id, first_name, last_name, nickname, password, email, country, disabled, version, created_at, updated_at
 		FROM users
 		WHERE %s disabled = 'f' 
-	`, queryComposer(queryTerm)))
+	`, filterArguments), filterParams...)
 	if err != nil {
 		return nil, fmt.Errorf("%w failed to query context", err)
 	}
@@ -244,15 +252,15 @@ func (s UserStore) scanMultipleRows(rows *sql.Rows) ([]models.User, error) {
 	}
 
 	for rows.Next() {
-		var u User
+		var scannedUser User
 		if err := rows.Scan(
-			&u.id,
-			&u.firstname,
-			&u.lastname,
-			&u.nickname,
-			&u.password,
-			&u.email,
-			&u.country, &u.disabled, &u.version, &u.createdAt, &u.updatedAt); err != nil {
+			&scannedUser.id,
+			&scannedUser.firstname,
+			&scannedUser.lastname,
+			&scannedUser.nickname,
+			&scannedUser.password,
+			&scannedUser.email,
+			&scannedUser.country, &scannedUser.disabled, &scannedUser.version, &scannedUser.createdAt, &scannedUser.updatedAt); err != nil {
 			if pgErr, ok := err.(pgx.PgError); ok {
 				if pgErr.Code == pgerr.UniqueViolation {
 					return nil, ErrDuplicateUser
@@ -266,7 +274,9 @@ func (s UserStore) scanMultipleRows(rows *sql.Rows) ([]models.User, error) {
 			return nil, err
 		}
 
-		user := s.hydrateUser(u.id, u.firstname, u.lastname, u.nickname, u.password, u.email, u.country, u.disabled, u.version, u.createdAt, u.updatedAt)
+		user := s.hydrateUser(scannedUser.id, scannedUser.firstname, scannedUser.lastname,
+			scannedUser.nickname, scannedUser.password, scannedUser.email, scannedUser.country,
+			scannedUser.disabled, scannedUser.version, scannedUser.createdAt, scannedUser.updatedAt)
 
 		users = append(users, user)
 	}

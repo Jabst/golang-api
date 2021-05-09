@@ -192,7 +192,6 @@ func Test_UserStore_Store(t *testing.T) {
 			defer repo.pool.Close()
 			g.Expect(err).ToNot(HaveOccurred(), "should not return an error setting up the repository")
 
-			fmt.Println(repo)
 			result, err := repo.Store(ctx, tc.input.user, tc.input.user.Meta.GetVersion())
 
 			if tc.expected.err != nil {

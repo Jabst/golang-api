@@ -5,7 +5,6 @@ import (
 	"code/tech-test/domain/users/services"
 	"context"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -90,7 +89,6 @@ func (h UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.service.GetUser(context.Background(), i)
 	if err != nil {
-		fmt.Println(err)
 		switch err {
 		case services.ErrUserNotFound:
 			w.WriteHeader(http.StatusNotFound)
@@ -211,10 +209,8 @@ func (h UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	err = h.producer.Publish(user)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
 
-		return
 	}
 
 	response, err := json.Marshal(fromDomain(user))
@@ -239,9 +235,9 @@ func (h UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 func (h UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-	id := vars["id"]
+	paramID := vars["id"]
 
-	i, err := strconv.Atoi(id)
+	id, err := strconv.Atoi(paramID)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		log.Println(err)
@@ -272,7 +268,7 @@ func (h UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		LastName:  request.LastName,
 		Nickname:  request.Nickname,
 		Password:  request.Password,
-		ID:        i,
+		ID:        id,
 	}
 
 	user, err := h.service.UpdateUser(context.Background(), params)
@@ -293,7 +289,6 @@ func (h UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 
-		return
 	}
 
 	response, err := json.Marshal(fromDomain(user))
@@ -316,9 +311,9 @@ func (h UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 func (h UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-	id := vars["id"]
+	paramsID := vars["id"]
 
-	i, err := strconv.Atoi(id)
+	id, err := strconv.Atoi(paramsID)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		log.Println(err)
@@ -327,7 +322,7 @@ func (h UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = h.service.DeleteUser(context.Background(), services.DeleteUserParams{
-		ID: i,
+		ID: id,
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -335,6 +330,7 @@ func (h UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
+
 	w.WriteHeader(http.StatusOK)
 }
 

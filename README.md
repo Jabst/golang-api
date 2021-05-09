@@ -51,6 +51,8 @@ To run API integration tests:
 
     go test -tags=i -v -p=1 ./...
 
+To consume from the kafka topic kafkacat can be used
+
 ## Assumptions during development
 
 ### Passwords
@@ -87,10 +89,18 @@ The chosen storage mechanism was PostgreSQL because it meets the criteria of hav
 
 To enable a faster workflow, a pipeline that runs for a given set of conditions can be employed to reduce the release time span when deployments are necessary or to automatically run tests on an isolated environment.
 
-### Cloud Infrastructure
-
-The deployment can be used to AWS EC2 and make it easier to horizontally scale the API by adding more task definitions.
-
 ### Kafka Cluster optimizations
 
-Depending on the amount of messages received, the 
+Depending on the evolution of the API the topic in the kafka cluster can have different configurations to optimize for the given use case.
+
+### Caching
+
+To reduce the amount of queries to the database a caching system(such as Redis) can be used to store the result of the List query(for example).
+
+### Logging
+
+If the API were to run on AWS ECS, the logs could be consumed by Logstash and indexed in ElasticSearch and accessed through Kibana.
+
+### Metrics
+
+Application metrics to evaluate processing times for the several API routes.
