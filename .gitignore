@@ -1,0 +1,9 @@
+/dist
+vendor
+*_gen.go
+*_gen_test.go
+*_mock.go
+.coverage.out
+build.properties
+/output
+/sk-single-kafka-single
