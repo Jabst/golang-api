@@ -6,4 +6,4 @@ vendor
 .coverage.out
 build.properties
 /output
-/sk-single-kafka-single
+/zk-single-kafka-single
