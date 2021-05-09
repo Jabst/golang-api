@@ -29,12 +29,11 @@ However, this is only meant to be a proof of concept and not to be used or consi
 
     docker-compose up -d
 
-The API will be available at port 80 of localhost. However, it's also possible to only run the application as:
+The API will be available on port 80. However, it's also possible to only run the application as:
 
     go run cmd/main.go users
 
- 
- This is expected to only start the API and it runs in port 8080.
+ This is expected to only start the API and it runs on port 8080.
 
 ### Running tests
 
@@ -70,6 +69,10 @@ To register the changes to the user entities, this solution uses an Apache Kafka
 
 The health checks are straight-forward, one of them gives the status of the API if it is running or not, the other one gives the runtime memory consumption.
 
+### Failing to publish message
+
+When the publish fails to publish a message, the error is logged and the request flow continues.
+
 ## Possible extensions
 
 To improve this API many extensions can be made at all levels of implementation to make it able to scale and make it easier to be deployed.
@@ -83,7 +86,7 @@ To improve this API many extensions can be made at all levels of implementation 
 
 ### Storage
 
-The chosen storage mechanism was PostgreSQL because it meets the criteria of having a mechanism to persist data, however depending on the demands of given API it can be changed to the tool that fits the use case the best. If an entity is expected to hold millions of records, then AWS DynamoDB as an option for storage could be used if the queries to this entity are very well defined.
+The chosen storage mechanism was PostgreSQL because it meets the criteria of having a mechanism to persist data, however depending on the demands of the given API it can be changed to the storage mechanism that fits the use case the best.
 
 ### CI/CD pipelines
 
@@ -103,4 +106,4 @@ If the API were to run on AWS ECS, the logs could be consumed by Logstash and in
 
 ### Metrics
 
-Application metrics to evaluate processing times for the several API routes.
+Application metrics to evaluate processing times for the several API routes in real time through dashboards like Grafana.
