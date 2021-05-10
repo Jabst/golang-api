@@ -140,7 +140,7 @@ Response
 	      "updated_at": "2020-01-01T00:00:00Z",
 	      "active": true,
 	      "version": 1
-		}
+	    }
 	 ]
 	}
 
@@ -245,15 +245,7 @@ Response
 
 ## Possible extensions
 
-To improve this API many extensions can be made at all levels of implementation to make it able to scale and make it easier to be deployed.
-
- - Storage
- - Sharding
- - Publish/Subscriber Kafka Cluster optimizations
- - Caching
- - CI/CD pipelines
- - Cloud infrastructure
- - Server-side paging
+To improve this API further development can be made at all levels of implementation to make it able to scale and make it easier to be deployed.
 
 ### Storage
 
