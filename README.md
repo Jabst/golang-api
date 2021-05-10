@@ -182,7 +182,7 @@ Request
 
     /users/{id}
 
-Request
+Request Payload
 
     {
 		"first_name": "John",
