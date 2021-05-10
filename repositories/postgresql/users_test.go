@@ -1,4 +1,4 @@
-// +build integration
+// +build integrationdb
 
 package postgresql
 
@@ -43,7 +43,7 @@ func initUserStore() (*UserStore, error) {
 		ALTER SEQUENCE users_id_seq RESTART WITH 1;
 		INSERT INTO users(first_name, last_name, nickname, password, email, country, created_at, updated_at, version)
 		VALUES ('Test', 'Test', 'testuser', 'qwerty', 'example@example.qqq', 'uk', '2020-01-01 00:00:00', '2020-01-01 00:00:00', 1),
-			('Test', 'Test', 'testuser-2', 'qwerty', 'example@example.qqq', 'ab', '2020-01-01 00:00:00', '2020-01-01 00:00:00', 1);
+			('Test', 'Test', 'testuser-2', 'qwerty', 'example-db@example.qqq', 'ab', '2020-01-01 00:00:00', '2020-01-01 00:00:00', 1);
 		`)
 	if err != nil {
 		panic(err)
@@ -384,7 +384,7 @@ func Test_UserStore_List(t *testing.T) {
 						LastName:  "Test",
 						Nickname:  "testuser-2",
 						Password:  "qwerty",
-						Email:     "example@example.qqq",
+						Email:     "example-db@example.qqq",
 						Country:   "ab",
 						ID:        2,
 					},

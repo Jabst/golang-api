@@ -11,13 +11,13 @@ import (
 )
 
 var (
-	ErrNoChanges    = errors.New("no changes")
 	ErrUserNotFound = errors.New("user not found")
+	ErrWrongVersion = errors.New("wrong version provided")
 )
 
 type UserStore interface {
 	Get(ctx context.Context, id int) (models.User, error)
-	List(ctx context.Context, queryTerms map[string]string) ([]models.User, error) // TODO
+	List(ctx context.Context, queryTerms map[string]string) ([]models.User, error)
 	Store(ctx context.Context, user models.User, version uint32) (models.User, error)
 	Delete(ctx context.Context, id int) error
 }
@@ -116,12 +116,12 @@ func (s UserService) UpdateUser(ctx context.Context, params UpdateUserParams) (m
 		user.SetPassword(params.Password)
 	}
 
-	if !user.Meta.HasChanges() {
-		return user, ErrNoChanges
-	}
-
 	user, err = s.store.Store(ctx, user, params.Version)
 	if err != nil {
+		switch err {
+		case postgresql.ErrWrongVersion:
+			return models.User{}, ErrWrongVersion
+		}
 		return models.User{}, fmt.Errorf("%w failed to store user", err)
 	}
 

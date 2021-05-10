@@ -22,6 +22,7 @@ var (
 	pgsqlAddr = ""
 	pgsqlPort = 0
 	kafkaAddr = ""
+	kafkaPort = 0
 )
 
 //SetupAPI ...
@@ -37,7 +38,7 @@ func SetupAPI() {
 	}
 	defer pool.Close()
 
-	producer, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": fmt.Sprintf("%s:9092", kafkaAddr)})
+	producer, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": fmt.Sprintf("%s:%d", kafkaAddr, kafkaPort)})
 	if err != nil {
 		panic(err)
 	}
@@ -56,8 +57,8 @@ func SetupAPI() {
 	router.HandleFunc("/users/{id}", handler.UpdateUser).Methods("PUT")
 	router.HandleFunc("/users/{id}", handler.DeleteUser).Methods("DELETE")
 
-	router.HandleFunc("/_/health", handlers.HealthCheck)
-	router.HandleFunc("/_/runtime", handlers.RuntimeCheck)
+	router.HandleFunc("/_/health", handlers.HealthCheck).Methods("GET")
+	router.HandleFunc("/_/runtime", handlers.RuntimeCheck).Methods("GET")
 
 	log.Println("starting users API")
 	log.Fatal(http.ListenAndServe(":8080", router))
@@ -67,12 +68,15 @@ func getEnvironmentVariables() {
 	env := os.Getenv("env")
 
 	if env == "docker" {
+		fmt.Println("HERE")
 		pgsqlAddr = "psql"
 		pgsqlPort = 5432
-		kafkaAddr = "kafka1"
+		kafkaAddr = "kafka"
+		kafkaPort = 29092
 	} else {
 		pgsqlAddr = "localhost"
 		pgsqlPort = 5434
 		kafkaAddr = "localhost"
+		kafkaPort = 9092
 	}
 }

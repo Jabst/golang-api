@@ -8,6 +8,7 @@ services:
       dockerfile: assets/docker/psql.dev.dockerfile
     restart: always
     hostname: psql
+    network_mode: bridge
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
@@ -15,53 +16,34 @@ services:
     ports:
       - 5434:5432
 
-  zoo1:
-    image: zookeeper:3.4.9
-    hostname: zoo1
+  kafka:
+    image: obsidiandynamics/kafka
+    network_mode: bridge
+    hostname: kafka
     ports:
-      - "2181:2181"
+      - 2181:2181
+      - 9092:9092
     environment:
-      ZOO_MY_ID: 1
-      ZOO_PORT: 2181
-      ZOO_SERVERS: server.1=zoo1:2888:3888
+      KAFKA_LISTENERS: "INTERNAL://:29092,EXTERNAL://:9092"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka:29092,EXTERNAL://localhost:9092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
     volumes:
-      - ./zk-single-kafka-single/zoo1/data:/data
-      - ./zk-single-kafka-single/zoo1/datalog:/datalog
-
-  kafka1:
-    image: confluentinc/cp-kafka:5.5.1
-    hostname: kafka1
-    ports:
-      - "9092:9092"
-      - "9999:9999"
-    environment:
-      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka1:19092,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
-      KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181"
-      KAFKA_BROKER_ID: 1
-      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_JMX_PORT: 9999
-      KAFKA_JMX_HOSTNAME: ${DOCKER_HOST_IP:-127.0.0.1}
-    volumes:
-      - ./zk-single-kafka-single/kafka1/data:/var/lib/kafka/data
-    depends_on:
-      - zoo1
+      - /var/run/docker.sock:/var/run/docker.sock
 
   api:
     build:
       context: .
       dockerfile: Dockerfile
     command: /src/dist/api users
+    network_mode: bridge
     ports:
       - 80:8080
     environment:
       - env=docker
     links:
       - psql
+      - kafka
     depends_on:
       - psql
-      - kafka1
+      - kafka

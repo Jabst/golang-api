@@ -18,7 +18,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.1.3
 	github.com/tkuchiki/faketime v0.1.1
-	gitlab.com/vredens/go-logger v1.3.1
 	golang.org/x/crypto v0.0.0-20210506145944-38f3c27a63bf // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/validator.v2 v2.0.0-20210331031555-b37d688a7fb0

@@ -11,7 +11,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-playground/validator"
 	"github.com/gorilla/mux"
 )
 
@@ -30,14 +29,12 @@ type UserProducer interface {
 type UserHandler struct {
 	service  UserService
 	producer UserProducer
-	*validator.Validate
 }
 
 func NewUserHandler(service UserService, producer UserProducer) *UserHandler {
 	return &UserHandler{
 		service:  service,
 		producer: producer,
-		Validate: validator.New(),
 	}
 }
 
@@ -203,6 +200,7 @@ func (h UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	user, err := h.service.CreateUser(context.Background(), params)
 	if err != nil {
 		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
 
 		return
 	}
@@ -211,6 +209,7 @@ func (h UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 
+		return
 	}
 
 	response, err := json.Marshal(fromDomain(user))
@@ -276,6 +275,9 @@ func (h UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		switch err {
 		case services.ErrUserNotFound:
 			w.WriteHeader(http.StatusNotFound)
+			log.Println(err)
+		case services.ErrWrongVersion:
+			w.WriteHeader(http.StatusConflict)
 			log.Println(err)
 		default:
 			w.WriteHeader(http.StatusInternalServerError)

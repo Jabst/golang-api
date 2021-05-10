@@ -29,11 +29,12 @@ However, this is only meant to be a proof of concept and not to be used or consi
 
     docker-compose up -d
 
-The API will be available on port 80. However, it's also possible to only run the application as:
+The API will be available at port 80 of localhost. However, it's also possible to only run the application as:
 
     go run cmd/main.go users
 
- This is expected to only start the API and it runs on port 8080.
+ 
+ This is expected to only start the API and it runs in port 8080.
 
 ### Running tests
 
@@ -44,11 +45,11 @@ To run unit tests:
 
 To run integration tests:
 
-    go test -tags=integration -v -p=1 ./...
+    go test -tags=integrationdb -v -p=1 ./...
 
 To run API integration tests:
 
-    go test -tags=i -v -p=1 ./...
+    go test -tags=integrationapi -v -p=1 ./...
 
 To consume from the kafka topic kafkacat can be used
 
@@ -73,6 +74,167 @@ The health checks are straight-forward, one of them gives the status of the API 
 
 When the publish fails to publish a message, the error is logged and the request flow continues.
 
+## API
+
+The API is composed by 5 routes that allow for CRUD operations.
+
+### GET user
+	
+Request
+
+    /users/{id}
+
+Response
+
+    {
+	  "id": 2,
+	  "first_name": "Test",
+	  "last_name": "Test",
+	  "nickname": "testuser-2",
+	  "email": "example@example.qqq",
+	  "country": "ab",
+	  "created_at": "2020-01-01T00:00:00Z",
+	  "updated_at": "2020-01-01T00:00:00Z",
+	  "active": true,
+	  "version": 1
+}
+
+### GET users
+
+Request
+
+    /users
+
+Response
+
+    {
+  "users": [
+    {
+      "id": 3,
+      "first_name": "test3",
+      "last_name": "test3",
+      "nickname": "testuser3",
+      "email": "example@example.com",
+      "country": "uk",
+      "created_at": "2021-05-10T08:28:37.229387Z",
+      "updated_at": "2021-05-10T08:28:37.229387Z",
+      "active": true,
+      "version": 1
+    },
+    {
+	      "id": 2,
+	      "first_name": "Test",
+	      "last_name": "Test",
+	      "nickname": "testuser-2",
+	      "email": "example@example.qqq",
+	      "country": "ab",
+	      "created_at": "2020-01-01T00:00:00Z",
+	      "updated_at": "2020-01-01T00:00:00Z",
+	      "active": true,
+	      "version": 1
+	    }
+	    ]
+}
+
+### POST user
+
+Request
+
+    /users
+
+Request Payload
+
+    {
+		"first_name": "test3",
+		"last_name":  "test3",
+		"nickname":   "testuser3",
+		"password":   "qwerty",
+		"email":      "example@example.com",
+		"country":    "uk"
+}
+
+Response
+
+    {
+  "id": 3,
+  "first_name": "test3",
+  "last_name": "test3",
+  "nickname": "testuser3",
+  "email": "example@example.com",
+  "country": "uk",
+  "created_at": "2021-01-01T00:00:00.000000",
+  "updated_at": "2021-01-01T00:00:00.000000Z",
+  "active": true,
+  "version": 1
+}
+
+### PUT user
+
+Request
+
+    /users/{id}
+
+Request
+
+    {
+	"first_name": "John",
+	"last_name": "Doe",
+	"password": "xxxxx",
+	"email": "example@example.example",
+	"country": "pt",
+	"version": 1
+}
+
+Response
+
+    {
+  "id": 2,
+  "first_name": "John",
+  "last_name": "Doe",
+  "nickname": "testuser-2",
+  "email": "example@example.example",
+  "country": "pt",
+  "created_at": "2020-01-01T00:00:00Z",
+  "updated_at": "2021-05-01T00:00:00Z",
+  "active": true,
+  "version": 2
+}
+
+### DELETE user
+
+Request
+
+    /users/{id}
+
+Response
+
+    200 OK
+
+### GET Status
+
+Request
+
+    /_/health
+
+Response
+
+    200 OK
+
+### GET Runtime Stats
+
+Request
+
+    /_/runtime
+
+Response
+
+    {
+	  "total_allocated_memory_MB": 24,
+	  "allocated_memory_MB": 23
+}
+
+
+
 ## Possible extensions
 
 To improve this API many extensions can be made at all levels of implementation to make it able to scale and make it easier to be deployed.
@@ -83,10 +245,11 @@ To improve this API many extensions can be made at all levels of implementation 
  - Caching
  - CI/CD pipelines
  - Cloud infrastructure
+ - Server-side paging
 
 ### Storage
 
-The chosen storage mechanism was PostgreSQL because it meets the criteria of having a mechanism to persist data, however depending on the demands of the given API it can be changed to the storage mechanism that fits the use case the best.
+The chosen storage mechanism was PostgreSQL because it meets the criteria of having a mechanism to persist data, however depending on the demands of given API it can be changed to the tool that fits the use case the best. If an entity is expected to hold millions of records, then AWS DynamoDB as an option for storage could be used if the queries to this entity are very well defined.
 
 ### CI/CD pipelines
 
@@ -102,8 +265,16 @@ To reduce the amount of queries to the database a caching system(such as Redis) 
 
 ### Logging
 
-If the API were to run on AWS ECS, the logs could be consumed by Logstash and indexed in ElasticSearch and accessed through Kibana.
+Using the ELK stack, logs being produced could be captured by Logstash and indexed in ElasticSearch and accessed through Kibana. 
 
 ### Metrics
 
 Application metrics to evaluate processing times for the several API routes in real time through dashboards like Grafana.
+
+### Adding change data capture
+
+Adding a tool such as Debezium to monitor databases allows for any application to consume events for each change made to the database at a row-level for any given set of tables. 
+
+### Sharding
+
+Sharding is an option in the case of the application is foreseeable to have a significant growth.

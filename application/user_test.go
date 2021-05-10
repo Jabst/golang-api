@@ -1,4 +1,4 @@
-//+build i
+//+build integrationapi
 
 package api
 
@@ -34,7 +34,7 @@ func setupDatabase() {
 		ALTER SEQUENCE users_id_seq RESTART WITH 1;
 		INSERT INTO users(first_name, last_name, nickname, password, email, country, created_at, updated_at, version)
 		VALUES ('Test', 'Test', 'testuser', 'qwerty', 'example@example.qqq', 'uk', '2020-01-01 00:00:00', '2020-01-01 00:00:00', 1),
-			('Test', 'Test', 'testuser-2', 'qwerty', 'example@example.qqq', 'ab', '2020-01-01 00:00:00', '2020-01-01 00:00:00', 1);
+			('Test', 'Test', 'testuser-2', 'qwerty', 'example-2@example.qqq', 'ab', '2020-01-01 00:00:00', '2020-01-01 00:00:00', 1);
 		`)
 	if err != nil {
 		panic(err)
@@ -111,7 +111,7 @@ func Test_UserAPI_List(t *testing.T) {
 			description: "when the users are fetched",
 			expected: testExpectation{
 				status: "200 OK",
-				result: []byte(`{"users":[{"id":1,"first_name":"Test","last_name":"Test","nickname":"testuser","email":"example@example.qqq","country":"uk","created_at":"2020-01-01T00:00:00Z","updated_at":"2020-01-01T00:00:00Z","active":true,"version":1},{"id":2,"first_name":"Test","last_name":"Test","nickname":"testuser-2","email":"example@example.qqq","country":"ab","created_at":"2020-01-01T00:00:00Z","updated_at":"2020-01-01T00:00:00Z","active":true,"version":1}]}`),
+				result: []byte(`{"users":[{"id":1,"first_name":"Test","last_name":"Test","nickname":"testuser","email":"example@example.qqq","country":"uk","created_at":"2020-01-01T00:00:00Z","updated_at":"2020-01-01T00:00:00Z","active":true,"version":1},{"id":2,"first_name":"Test","last_name":"Test","nickname":"testuser-2","email":"example-2@example.qqq","country":"ab","created_at":"2020-01-01T00:00:00Z","updated_at":"2020-01-01T00:00:00Z","active":true,"version":1}]}`),
 			},
 		},
 	}
