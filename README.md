@@ -51,11 +51,11 @@ To run unit tests:
 
 To run integration tests:
 
-    go test -tags=integration -v -p=1 ./...
+    go test -tags=integrationdb -v -p=1 ./...
 
 To run API integration tests:
 
-    go test -tags=i -v -p=1 ./...
+    go test -tags=integrationapi -v -p=1 ./...
 
 To consume from the kafka topic kafkacat can be used such as:
 
