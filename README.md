@@ -38,6 +38,12 @@ The API will be available at port 80 of localhost. However, it's also possible t
 
 ### Running tests
 
+Before running the unit tests, the mocks have to generated. (Also includes installation of mockgen in case it's not yet installed)
+
+    go install github.com/golang/mock/mockgen
+    go generate ./... 
+
+
 There are two types of tests **unit** and **integration**. 
 To run unit tests:
 
@@ -45,18 +51,20 @@ To run unit tests:
 
 To run integration tests:
 
-    go test -tags=integrationdb -v -p=1 ./...
+    go test -tags=integration -v -p=1 ./...
 
 To run API integration tests:
 
-    go test -tags=integrationapi -v -p=1 ./...
+    go test -tags=i -v -p=1 ./...
 
-To consume from the kafka topic kafkacat can be used
+To consume from the kafka topic kafkacat can be used such as:
+
+    kafkacat -b localhost:9092 -t users -C
 
 ## Assumptions during development
 
 ### Passwords
-All the passwords that are received are assumed as being strings. The reason being is to not add complexity to the boilerplate application.
+All the passwords that are received are assumed as being strings and all the underlying encryption is already handled by the requester service. The reason being is to not add complexity to the boilerplate application.
 
 ### Getting multiple users
 
@@ -73,6 +81,7 @@ The health checks are straight-forward, one of them gives the status of the API 
 ### Failing to publish message
 
 When the publish fails to publish a message, the error is logged and the request flow continues.
+
 
 ## API
 
@@ -107,8 +116,7 @@ Request
 
 Response
 
-    {
-  "users": [
+    {  "users": [
     {
       "id": 3,
       "first_name": "test3",
@@ -155,18 +163,18 @@ Request Payload
 
 Response
 
-    {
-  "id": 3,
-  "first_name": "test3",
-  "last_name": "test3",
-  "nickname": "testuser3",
-  "email": "example@example.com",
-  "country": "uk",
-  "created_at": "2021-01-01T00:00:00.000000",
-  "updated_at": "2021-01-01T00:00:00.000000Z",
-  "active": true,
-  "version": 1
-}
+     {
+      "id": 3,
+      "first_name": "test3",
+      "last_name": "test3",
+      "nickname": "testuser3",
+      "email": "example@example.com",
+      "country": "uk",
+      "created_at": "2021-01-01T00:00:00.000000",
+      "updated_at": "2021-01-01T00:00:00.000000Z",
+      "active": true,
+      "version": 1
+    }
 
 ### PUT user
 
@@ -187,18 +195,18 @@ Request
 
 Response
 
-    {
-  "id": 2,
-  "first_name": "John",
-  "last_name": "Doe",
-  "nickname": "testuser-2",
-  "email": "example@example.example",
-  "country": "pt",
-  "created_at": "2020-01-01T00:00:00Z",
-  "updated_at": "2021-05-01T00:00:00Z",
-  "active": true,
-  "version": 2
-}
+    {  
+	    "id": 2,
+	  "first_name": "John",
+	  "last_name": "Doe",
+	  "nickname": "testuser-2",
+	  "email": "example@example.example",
+	  "country": "pt",
+	  "created_at": "2020-01-01T00:00:00Z",
+	  "updated_at": "2021-05-01T00:00:00Z",
+	  "active": true,
+	  "version": 2
+	}
 
 ### DELETE user
 
@@ -278,3 +286,7 @@ Adding a tool such as Debezium to monitor databases allows for any application t
 ### Sharding
 
 Sharding is an option in the case of the application is foreseeable to have a significant growth.
+
+### Persist failed to publish messages
+
+Some of the messages might fail to be published to the kafka cluster. In order to prevent loss of information these messages could be persisted in an adequate storage layer and then republished in the future.
