@@ -222,6 +222,9 @@ func Test_UserStore_Delete(t *testing.T) {
 		result models.User
 	}
 
+	expectedMeta := domain.NewMeta()
+	expectedMeta.SetDisabled(true)
+
 	testCases := []struct {
 		description string
 		input       testInput
@@ -233,6 +236,9 @@ func Test_UserStore_Delete(t *testing.T) {
 				id: 1,
 			},
 			expected: testExpectation{
+				result: models.User{
+					Meta: expectedMeta,
+				},
 				err: nil,
 			},
 		},
@@ -249,12 +255,13 @@ func Test_UserStore_Delete(t *testing.T) {
 			defer repo.pool.Close()
 			g.Expect(err).ToNot(HaveOccurred(), "should not return an error setting up the repository")
 
-			err = repo.Delete(ctx, tc.input.id)
+			user, err := repo.Delete(ctx, tc.input.id)
 
 			if tc.expected.err != nil {
 				g.Expect(err).To(Equal(tc.expected.err), "should return the expected error")
 			} else {
 				g.Expect(err).ToNot(HaveOccurred(), "should not return an error")
+				g.Expect(user.Meta.GetDisabled()).To(Equal(tc.expected.result.Meta.GetDisabled()), "should be disabled")
 			}
 		})
 	}

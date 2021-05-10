@@ -504,6 +504,9 @@ func Test_DeleteUser(t *testing.T) {
 		user models.User
 	}
 
+	expectedMeta := domain.NewMeta()
+	expectedMeta.SetDisabled(true)
+
 	testCases := []struct {
 		description string
 		setup       func(ctx context.Context, repo *mock_services.MockUserStore)
@@ -513,25 +516,31 @@ func Test_DeleteUser(t *testing.T) {
 		{
 			description: "when the user is deleted",
 			setup: func(ctx context.Context, repo *mock_services.MockUserStore) {
-				repo.EXPECT().Delete(ctx, 1).Return(nil)
+				repo.EXPECT().Delete(ctx, 1).Return(models.User{
+					Meta: expectedMeta,
+				}, nil)
 			},
 			input: DeleteUserParams{
 				ID: 1,
 			},
 			expected: testExpectation{
+				user: models.User{
+					Meta: expectedMeta,
+				},
 				err: nil,
 			},
 		},
 		{
 			description: "when the user fails to be deleted",
 			setup: func(ctx context.Context, repo *mock_services.MockUserStore) {
-				repo.EXPECT().Delete(ctx, 1).Return(ERROR)
+				repo.EXPECT().Delete(ctx, 1).Return(models.User{}, ERROR)
 			},
 			input: DeleteUserParams{
 				ID: 1,
 			},
 			expected: testExpectation{
-				err: fmt.Errorf("%w failed to delete user", ERROR),
+				user: models.User{},
+				err:  fmt.Errorf("%w failed to delete user", ERROR),
 			},
 		},
 	}
@@ -546,10 +555,12 @@ func Test_DeleteUser(t *testing.T) {
 
 			testCase.setup(ctx, repo)
 
-			err := service.DeleteUser(ctx, testCase.input)
+			user, err := service.DeleteUser(ctx, testCase.input)
 
 			if testCase.expected.err != nil {
 				g.Expect(testCase.expected.err).To(Equal(err), "error when fetching user")
+			} else {
+				g.Expect(testCase.expected.user.Meta.GetDisabled()).To(Equal(user.Meta.GetDisabled()), "should be equal to expected disabled status")
 			}
 
 		})

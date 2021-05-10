@@ -19,7 +19,7 @@ type UserStore interface {
 	Get(ctx context.Context, id int) (models.User, error)
 	List(ctx context.Context, queryTerms map[string]string) ([]models.User, error)
 	Store(ctx context.Context, user models.User, version uint32) (models.User, error)
-	Delete(ctx context.Context, id int) error
+	Delete(ctx context.Context, id int) (models.User, error)
 }
 
 type CreateUserParams struct {
@@ -128,13 +128,13 @@ func (s UserService) UpdateUser(ctx context.Context, params UpdateUserParams) (m
 	return user, nil
 }
 
-func (s UserService) DeleteUser(ctx context.Context, params DeleteUserParams) error {
-	err := s.store.Delete(ctx, params.ID)
+func (s UserService) DeleteUser(ctx context.Context, params DeleteUserParams) (models.User, error) {
+	user, err := s.store.Delete(ctx, params.ID)
 	if err != nil {
-		return fmt.Errorf("%w failed to delete user", err)
+		return models.User{}, fmt.Errorf("%w failed to delete user", err)
 	}
 
-	return nil
+	return user, nil
 }
 
 func (s UserService) createUser(ctx context.Context, params CreateUserParams) (models.User, error) {

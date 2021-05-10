@@ -19,7 +19,7 @@ type UserService interface {
 	ListUsers(ctx context.Context, queryTerms map[string]string) ([]models.User, error)
 	CreateUser(ctx context.Context, params services.CreateUserParams) (models.User, error)
 	UpdateUser(ctx context.Context, params services.UpdateUserParams) (models.User, error)
-	DeleteUser(ctx context.Context, params services.DeleteUserParams) error
+	DeleteUser(ctx context.Context, params services.DeleteUserParams) (models.User, error)
 }
 
 type UserProducer interface {
@@ -323,7 +323,7 @@ func (h UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.service.DeleteUser(context.Background(), services.DeleteUserParams{
+	user, err := h.service.DeleteUser(context.Background(), services.DeleteUserParams{
 		ID: id,
 	})
 	if err != nil {
@@ -331,6 +331,12 @@ func (h UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 
 		return
+	}
+
+	err = h.producer.Publish(user)
+	if err != nil {
+		log.Println(err)
+
 	}
 
 	w.WriteHeader(http.StatusOK)

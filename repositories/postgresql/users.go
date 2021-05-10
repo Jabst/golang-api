@@ -141,17 +141,15 @@ func (s UserStore) lockForUpdate(ctx context.Context, tx *sql.Tx, id int) (uint3
 	return version, nil
 }
 
-func (s UserStore) Delete(ctx context.Context, id int) error {
-	_, err := s.pool.ExecContext(ctx, `
+func (s UserStore) Delete(ctx context.Context, id int) (models.User, error) {
+	row := s.pool.QueryRowContext(ctx, `
 		UPDATE users
 		SET disabled = 't', updated_at = NOW()
 		WHERE id = $1
+		RETURNING id, first_name, last_name, nickname, password, email, country, disabled, version, created_at, updated_at
 	`, id)
-	if err != nil {
-		return fmt.Errorf("%w error deleting user", err)
-	}
 
-	return nil
+	return s.scan(row)
 }
 
 func (s UserStore) create(ctx context.Context, tx *sql.Tx, user models.User) (models.User, error) {
