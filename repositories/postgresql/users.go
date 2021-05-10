@@ -14,9 +14,9 @@ import (
 )
 
 var (
-	ErrWrongVersion  = errors.New("wrong version")
-	ErrDuplicateUser = errors.New("duplicate nickname")
-	ErrUserNotFound  = errors.New("user not found")
+	ErrWrongVersion    = errors.New("wrong version")
+	ErrUniqueViolation = errors.New("unique constraint violation")
+	ErrUserNotFound    = errors.New("user not found")
 )
 
 type UserStore struct {
@@ -216,7 +216,7 @@ func (s UserStore) scan(row *sql.Row) (models.User, error) {
 		&country, &disabled, &version, &createdAt, &updatedAt); err != nil {
 		if pgErr, ok := err.(pgx.PgError); ok {
 			if pgErr.Code == pgerr.UniqueViolation {
-				return models.User{}, ErrDuplicateUser
+				return models.User{}, ErrUniqueViolation
 			}
 		}
 
@@ -261,7 +261,7 @@ func (s UserStore) scanMultipleRows(rows *sql.Rows) ([]models.User, error) {
 			&scannedUser.country, &scannedUser.disabled, &scannedUser.version, &scannedUser.createdAt, &scannedUser.updatedAt); err != nil {
 			if pgErr, ok := err.(pgx.PgError); ok {
 				if pgErr.Code == pgerr.UniqueViolation {
-					return nil, ErrDuplicateUser
+					return nil, ErrUniqueViolation
 				}
 			}
 

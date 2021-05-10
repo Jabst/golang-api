@@ -13,3 +13,6 @@ CREATE TABLE IF NOT EXISTS users (
 
     PRIMARY KEY(id)
 )
+
+CREATE UNIQUE INDEX unique_active_nickname ON users (nickname) WHERE (disabled = 'f');
+CREATE UNIQUE INDEX unique_active_email ON users (email) WHERE (disabled = 'f');

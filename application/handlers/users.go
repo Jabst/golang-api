@@ -165,8 +165,6 @@ func (h UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
 }
 
 func (h UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -301,7 +299,6 @@ func (h UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	_, err = w.Write(response)
 	if err != nil {
