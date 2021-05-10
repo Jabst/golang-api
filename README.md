@@ -106,7 +106,7 @@ Response
 	  "updated_at": "2020-01-01T00:00:00Z",
 	  "active": true,
 	  "version": 1
-}
+	  }
 
 ### GET users
 
@@ -117,19 +117,19 @@ Request
 Response
 
     {  "users": [
-    {
-      "id": 3,
-      "first_name": "test3",
-      "last_name": "test3",
-      "nickname": "testuser3",
-      "email": "example@example.com",
-      "country": "uk",
-      "created_at": "2021-05-10T08:28:37.229387Z",
-      "updated_at": "2021-05-10T08:28:37.229387Z",
-      "active": true,
-      "version": 1
-    },
-    {
+	    {
+	      "id": 3,
+	      "first_name": "test3",
+	      "last_name": "test3",
+	      "nickname": "testuser3",
+	      "email": "example@example.com",
+	      "country": "uk",
+	      "created_at": "2021-05-10T08:28:37.229387Z",
+	      "updated_at": "2021-05-10T08:28:37.229387Z",
+	      "active": true,
+	      "version": 1
+	    },
+	    {
 	      "id": 2,
 	      "first_name": "Test",
 	      "last_name": "Test",
@@ -140,9 +140,9 @@ Response
 	      "updated_at": "2020-01-01T00:00:00Z",
 	      "active": true,
 	      "version": 1
-	    }
-	    ]
-}
+		}
+	 ]
+	}
 
 ### POST user
 
@@ -159,22 +159,22 @@ Request Payload
 		"password":   "qwerty",
 		"email":      "example@example.com",
 		"country":    "uk"
-}
+	}
 
 Response
 
      {
-      "id": 3,
-      "first_name": "test3",
-      "last_name": "test3",
-      "nickname": "testuser3",
-      "email": "example@example.com",
-      "country": "uk",
-      "created_at": "2021-01-01T00:00:00.000000",
-      "updated_at": "2021-01-01T00:00:00.000000Z",
-      "active": true,
-      "version": 1
-    }
+	      "id": 3,
+	      "first_name": "test3",
+	      "last_name": "test3",
+	      "nickname": "testuser3",
+	      "email": "example@example.com",
+	      "country": "uk",
+	      "created_at": "2021-01-01T00:00:00.000000",
+	      "updated_at": "2021-01-01T00:00:00.000000Z",
+	      "active": true,
+	      "version": 1
+      }
 
 ### PUT user
 
@@ -185,18 +185,18 @@ Request
 Request
 
     {
-	"first_name": "John",
-	"last_name": "Doe",
-	"password": "xxxxx",
-	"email": "example@example.example",
-	"country": "pt",
-	"version": 1
-}
+		"first_name": "John",
+		"last_name": "Doe",
+		"password": "xxxxx",
+		"email": "example@example.example",
+		"country": "pt",
+		"version": 1
+	}
 
 Response
 
     {  
-	    "id": 2,
+	  "id": 2,
 	  "first_name": "John",
 	  "last_name": "Doe",
 	  "nickname": "testuser-2",
@@ -239,7 +239,7 @@ Response
     {
 	  "total_allocated_memory_MB": 24,
 	  "allocated_memory_MB": 23
-}
+	}
 
 
 
