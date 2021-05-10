@@ -112,7 +112,6 @@ func (h UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
 }
 
 func (h UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
